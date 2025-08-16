@@ -120,17 +120,6 @@ func main() {
 	fmt.Printf("Print local time? (true/false): ")
 	fmt.Scanln(&printLocal)
 
-	// fmt.Printf("When was the items.json information created? (YYYY-MM-DD HH:00:00)? ")
-	// var itemsCreatedStr1, itemsCreatedStr2 string
-	// fmt.Scanln(&itemsCreatedStr1, &itemsCreatedStr2)
-	// itemsCreated, err := time.Parse(time.DateTime, itemsCreatedStr1+" "+itemsCreatedStr2)
-
-	// if err != nil {
-	// 	fmt.Println("Invalid date format. Please use YYYY-MM-DD HH:00:00")
-	// 	fmt.Println(err.Error())
-	// 	return
-	// }
-
 	fmt.Println("\nBest times to buy: ")
 	for _, item := range items {
 		bestTimesToBuy := getBestTimeToBuy(userID, item.ID)
