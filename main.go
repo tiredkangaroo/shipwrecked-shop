@@ -24,6 +24,7 @@ var TOP_X_TIMES = 6 // number of best times to return
 var shopCloses = time.Date(2025, time.September, 10, 0, 0, 0, 0, time.FixedZone("EDT", -4*3600))
 
 var printLocal bool = false
+var itemsUpdated bool = false // whether items.json was updated for this hour
 
 func getHourlyRandom(userID, itemID string, currentHour int) float64 {
 	combined := fmt.Sprintf("%s-%s-%d", strings.TrimSpace(userID), itemID, currentHour)
@@ -122,6 +123,13 @@ func formatCandidate(t candidateTime) string {
 	return fmt.Sprintf("%s %s %s (%d hours away)", t.t.Format("01/02 at 03:00 PM"), isLocal, stat, int(time.Until(t.t).Hours()))
 }
 
+func getBasePrice(itemPrice, currentRandomizedBase, fakeBasePrice float64) int {
+	pc := (currentRandomizedBase - fakeBasePrice) / fakeBasePrice * 100
+	// apply pc to itemPrice
+	old := itemPrice / (1 + pc/100) // yes ik im *100 and then /100, but dw
+	return int(math.Round(old))
+}
+
 func main() {
 	fmt.Printf("Enter your User ID: ")
 	var userID string
@@ -130,6 +138,8 @@ func main() {
 	fmt.Scanln(&TOP_X_TIMES)
 	fmt.Printf("Print local time? (true/false): ")
 	fmt.Scanln(&printLocal)
+	fmt.Printf("Was items.json updated for this hour? (true/false): ")
+	fmt.Scanln(&itemsUpdated)
 
 	fmt.Println("\nBest times to buy: ")
 	for _, item := range items {
@@ -139,6 +149,9 @@ func main() {
 		currentStat := getStat(float64(currentRandomizedBase), BASE_PRICE)
 
 		fmt.Printf("Item: %s (current %s)\n", item.Name, currentStat)
+		if itemsUpdated {
+			fmt.Printf("Base shell cost: %d\n", getBasePrice(item.Price, float64(currentRandomizedBase), BASE_PRICE))
+		}
 		for _, t := range bestTimesToBuy {
 			fmt.Printf("\t- %s\n", formatCandidate(t))
 		}
