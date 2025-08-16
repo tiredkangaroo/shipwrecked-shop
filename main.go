@@ -76,8 +76,8 @@ func getBestTimeToBuy(userID, itemID string) []candidateTime {
 	var candidates []candidateTime
 
 	for t.Before(shopCloses) {
-		currentHour := math.Floor(float64(t.UTC().UnixMilli()) / (1000 * 60 * 60))
-		price := calculateRandomizedPrice(userID, itemID, int(currentHour), BASE_PRICE) // Example base price of 100
+		currentHour := getHour(t)
+		price := calculateRandomizedPrice(userID, itemID, currentHour, BASE_PRICE) // Example base price of 100
 		candidates = append(candidates, candidateTime{t: t, price: price})
 
 		t = t.Add(time.Hour) // next loop iteration checks the next hour
@@ -95,14 +95,25 @@ func getBestTimeToBuy(userID, itemID string) []candidateTime {
 	return candidates[:min(TOP_X_TIMES, len(candidates))]
 }
 
+func getHour(t time.Time) int {
+	return int(math.Floor(float64(t.UTC().UnixMilli()) / (1000 * 60 * 60)))
+}
+
+func getStat(new, old float64) string {
+	percentChange := ((new - old) / old) * 100
+	if percentChange == 0 {
+		return "no change"
+	} else if percentChange < 0 {
+		return fmt.Sprintf("discount by %.2f%%", -percentChange)
+	} else {
+		return fmt.Sprintf("hike by %.2f%%", percentChange)
+	}
+}
+
 func formatCandidate(t candidateTime) string {
 	var stat string
-	percentChange := ((float64(t.price) - BASE_PRICE) / float64(BASE_PRICE)) * 100
-	if percentChange < 0 {
-		stat = fmt.Sprintf("discount by %.2f%%", -percentChange)
-	} else {
-		stat = fmt.Sprintf("hike by %.2f%%", percentChange)
-	}
+	stat = getStat(float64(t.price), BASE_PRICE)
+
 	var isLocal string = "UTC"
 	if printLocal {
 		t.t = t.t.Local() // convert to local time if requested
@@ -123,7 +134,11 @@ func main() {
 	fmt.Println("\nBest times to buy: ")
 	for _, item := range items {
 		bestTimesToBuy := getBestTimeToBuy(userID, item.ID)
-		fmt.Printf("Item: %s\n", item.Name)
+
+		currentRandomizedBase := calculateRandomizedPrice(userID, item.ID, getHour(time.Now()), BASE_PRICE)
+		currentStat := getStat(float64(currentRandomizedBase), BASE_PRICE)
+
+		fmt.Printf("Item: %s (current %s)\n", item.Name, currentStat)
 		for _, t := range bestTimesToBuy {
 			fmt.Printf("\t- %s\n", formatCandidate(t))
 		}
