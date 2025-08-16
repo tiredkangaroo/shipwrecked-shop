@@ -3,10 +3,9 @@ package main
 import (
 	_ "embed"
 	"encoding/json"
+	"os"
 )
 
-//go:embed items.json
-var rawItems string
 var items []Item
 
 type Item struct {
@@ -18,6 +17,10 @@ type Item struct {
 }
 
 func init() {
+	rawItems, err := os.ReadFile("items.json")
+	if err != nil {
+		panic("read items.json: " + err.Error())
+	}
 	if err := json.Unmarshal([]byte(rawItems), &items); err != nil {
 		panic("parse items.json: " + err.Error())
 	}

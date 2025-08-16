@@ -1,38 +1,45 @@
 [
   {
+    "id": "cmeerq38k002qqs014kxet22j",
+    "name": "Pie Graham in the face",
+    "description": "For every purchase we will pie graham in the face one time. ",
+    "image": "https://hc-cdn.hel1.your-objectstorage.com/s/v3/5d8bc6457b2098b15c60839ba314753f57d322ef_image_remove_background__13_.png",
+    "price": 83
+  },
+  {
     "id": "cmedm07yv000oqu01f9jgzslx",
     "name": "Big Blåhaj",
     "description": "US ONLY, your big cuddly shark friend",
     "image": "https://hc-cdn.hel1.your-objectstorage.com/s/v3/1e1c02757b8c6255b6d28b847642c42793a2ccd8_image_remove_background__12_.png",
-    "price": 194
+    "price": 192
   },
   {
     "id": "cmedl44qf000dqu01y622xgnz",
     "name": "Cybertruck",
     "description": "A fuc*ing Cybertruck?!?!?!?",
     "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/9/95/2024_Tesla_Cybertruck_Foundation_Series%2C_front_left_%28Greenwich%29.jpg/960px-2024_Tesla_Cybertruck_Foundation_Series%2C_front_left_%28Greenwich%29.jpg",
-    "price": 9340
+    "price": 9555
   },
   {
     "id": "cmedkjfz6000aqu01ec87hn9u",
     "name": "Wacom Intuous S",
     "description": "Pressure-sensitive precision, your digital canvas awaits!",
     "image": "https://hc-cdn.hel1.your-objectstorage.com/s/v3/32ebe8cc8a40695fcc16e0591f277f3173becf5f_image_remove_background__10_.png",
-    "price": 314
+    "price": 324
   },
   {
     "id": "cmedkfllp0008qu01girw5aot",
     "name": "MX Master S",
     "description": "Glide through work with the smoothest scroll in the galaxy!",
     "image": "https://hc-cdn.hel1.your-objectstorage.com/s/v3/86881d2361097d67ded3535f8a1baaa794a948db_image_remove_background__9_.png",
-    "price": 704
+    "price": 754
   },
   {
     "id": "cmedk0qx90000qu01d5vyksj8",
     "name": "Bambu Lab A1 mini",
     "description": "Watch your prints speed into reality, solid start for 3D dreams!",
     "image": "https://hc-cdn.hel1.your-objectstorage.com/s/v3/748056b66929b22521b4a41ee1752f8acda09140_image_remove_background__5_.png",
-    "price": 1565
+    "price": 1547
   },
   {
     "id": "cmedjnjai005opq013twkt7br",
@@ -46,35 +53,35 @@
     "name": "Raspbery PI 5",
     "description": "Tiny board, massive possibilities, hack anything!",
     "image": "https://hc-cdn.hel1.your-objectstorage.com/s/v3/f177d32a704d788e0971e62803c914e3b6684d9b_image_remove_background__11_.png",
-    "price": 469
+    "price": 480
   },
   {
     "id": "cmebn55yi0116nv01orzpor1v",
     "name": "Samsung T7 1TB SSD",
     "description": "Pocket-sized speedster, bulk up storage without the lag!",
     "image": "https://summer.hackclub.com/rails/active_storage/representations/redirect/eyJfcmFpbHMiOnsiZGF0YSI6NTA4MjQsInB1ciI6ImJsb2JfaWQifX0=--c85a007e74ea5713fd31d769f0fb2a286bf8c7bd/eyJfcmFpbHMiOnsiZGF0YSI6eyJmb3JtYXQiOiJwbmciLCJyZXNpemVfdG9fbGltaXQiOlsyNTYsMjU2XX0sInB1ciI6InZhcmlhdGlvbiJ9fQ==--69edd5fc8f56201b3f04f7560743d8fad0d8d976/2025_08_14_0g5_Kleki.png",
-    "price": 540
+    "price": 578
   },
   {
     "id": "cmebmn7um010wnv012eongfmj",
     "name": "Flipper Zero",
     "description": "Your digital multi-tool for hacking fun, cyber adventures await!",
     "image": "https://summer.hackclub.com/rails/active_storage/representations/redirect/eyJfcmFpbHMiOnsiZGF0YSI6OTYsInB1ciI6ImJsb2JfaWQifX0=--355255c6559988d0ce586e089449e3280bfd4e29/eyJfcmFpbHMiOnsiZGF0YSI6eyJmb3JtYXQiOiJwbmciLCJyZXNpemVfdG9fbGltaXQiOlsyNTYsMjU2XX0sInB1ciI6InZhcmlhdGlvbiJ9fQ==--69edd5fc8f56201b3f04f7560743d8fad0d8d976/2025_06_15_0th_Kleki.png",
-    "price": 1039
+    "price": 1023
   },
   {
     "id": "cme97z84p00r7nv01etg8md2q",
     "name": "iPad 11-inch + Apple Pencil (USB-C)",
     "description": "Draw, note, and doodle like a pro, paper is so last century!",
     "image": "https://summer.hackclub.com/rails/active_storage/representations/redirect/eyJfcmFpbHMiOnsiZGF0YSI6MjM5LCJwdXIiOiJibG9iX2lkIn19--00b9312b1ea065d925f83ad3b53d6684eff483f4/eyJfcmFpbHMiOnsiZGF0YSI6eyJmb3JtYXQiOiJwbmciLCJyZXNpemVfdG9fbGltaXQiOlsyNTYsMjU2XX0sInB1ciI6InZhcmlhdGlvbiJ9fQ==--69edd5fc8f56201b3f04f7560743d8fad0d8d976/2025_06_16_0qh_Kleki(1).png",
-    "price": 2056
+    "price": 2020
   },
   {
     "id": "cmdsx1fef0052sd01ygneytpv",
     "name": "E-fidgets",
     "description": "All the fun of a fidget but with no moving parts!",
     "image": "https://hc-cdn.hel1.your-objectstorage.com/s/v3/30ec61d2faba1d89951587be437a132b56ece850_image_background_removed.png",
-    "price": 60
+    "price": 56
   },
   {
     "id": "cmdmch4xb056cqn01rc10afcq",
@@ -88,42 +95,42 @@
     "name": "RTL-SDR V4 Kit",
     "description": "Turn your PC into an all-band radio scanner, sideband digging fun!",
     "image": "https://hc-cdn.hel1.your-objectstorage.com/s/v3/25484bd5c9bad38be4aa4797f2d399aaff57c1ac_image_remove_background__7_.png",
-    "price": 283
+    "price": 299
   },
   {
     "id": "cmdelstju00cclf01v5y89dr9",
     "name": "Pinetime",
     "description": "Open-source smartwatch, tick in style, tinker at will!",
     "image": "https://hc-cdn.hel1.your-objectstorage.com/s/v3/195d7241f6c6c04f77efe1ac7490720fdf3a868f_pinetime.png",
-    "price": 245
+    "price": 261
   },
   {
     "id": "cmdelpbl000calf01fhievo7a",
     "name": "Universal AI Credit",
     "description": "OpenAI, Anthropic, Groq, Gemini, Cursor, Openrouter, all the AI you crave!",
     "image": "https://hc-cdn.hel1.your-objectstorage.com/s/v3/14ad26063d941e9c6d917d4c78c9cdbd15c4c6e5_universal_ai_credit.png",
-    "price": 50
+    "price": 48
   },
   {
     "id": "cmdel7uer00c8lf017kdhtiaa",
     "name": "Centauri",
     "description": "Ever wanted a printer that can print out of the box and auto calibrate? Here ya go!",
     "image": "https://hc-cdn.hel1.your-objectstorage.com/s/v3/12c662c7c44454f23ac71eea708de8f7ce6f71a3_image_remove_background__3_.png",
-    "price": 1246
+    "price": 1255
   },
   {
     "id": "cmdel771k00c6lf01coz5rlhz",
     "name": "Centauri Carbon",
     "description": "Ever wanted a printer that can print out of the box and auto calibrate and print carbon fiber? Here ya go!",
     "image": "https://hc-cdn.hel1.your-objectstorage.com/s/v3/7fdd0ff2654f5385b9ef6122a8eaf69d483a5520_image_preview_from_remove.bg.png",
-    "price": 1717
+    "price": 1847
   },
   {
     "id": "cmdel4iob00c3lf01obbetleo",
     "name": "M4 mac mini",
     "description": "Pocket-rocket performance in a mini chassis, meet your new desk boss!",
     "image": "https://hc-cdn.hel1.your-objectstorage.com/s/v3/e7114cd2f78794a6920fbc65f5b3251275deb683_image_remove_background__6_.png",
-    "price": 2670
+    "price": 2565
   },
   {
     "id": "cmd7in0r4000kro01x3l2c1v8",
