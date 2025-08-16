@@ -1,0 +1,101 @@
+name: Build root Go project
+
+on:
+  push:
+    paths:
+      - "**.go"
+      - "go.mod"
+      - "go.sum"
+      - ".github/workflows/build-root.yml"
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    name: Build root project for multiple OS/ARCH
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        goos: [linux, darwin, windows]
+        goarch: [amd64, arm64]
+        exclude:
+          - goos: windows
+            goarch: arm64 # i dont feel like dealing with this rn
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: "1.24"
+
+      - name: Build and zip for ${{ matrix.goos }}/${{ matrix.goarch }}
+        run: |
+          mkdir -p builds
+          ext=""
+          if [ "${{ matrix.goos }}" = "windows" ]; then
+            ext=".exe"
+          fi
+
+          output_name="app${ext}"
+          build_dir="builds/${{ matrix.goos }}-${{ matrix.goarch }}"
+          binary_path="${build_dir}/${output_name}"
+
+          mkdir -p "$build_dir"
+
+          GOOS=${{ matrix.goos }} GOARCH=${{ matrix.goarch }} go build -o "$binary_path" .
+
+          chmod +x "$binary_path" || true
+
+          zip_name="app-${{ matrix.goos }}-${{ matrix.goarch }}.zip"
+          (cd "$build_dir" && zip "$zip_name" "$output_name")
+
+      - name: Upload zipped build
+        uses: actions/upload-artifact@v4
+        with:
+          name: app-${{ matrix.goos }}-${{ matrix.goarch }}
+          path: builds/${{ matrix.goos }}-${{ matrix.goarch }}/*.zip
+
+  release:
+    name: Create 'latest' GitHub Release
+    runs-on: ubuntu-latest
+    needs: build
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Download all zipped artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: builds
+          merge-multiple: true
+
+      - name: Install GitHub CLI
+        run: |
+          sudo apt update
+          sudo apt install -y gh
+
+      - name: Create or update 'latest' release
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          if gh release view latest &>/dev/null; then
+            echo "Release 'latest' exists. Deleting and recreating..."
+            gh release delete latest --yes
+          fi
+
+          gh release create latest \
+            --title "Latest Build" \
+            --notes "Automated build for latest commit" \
+            --latest
+
+      - name: Upload all zips to release
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          find builds -type f -name "*.zip" -exec gh release upload latest {} --clobber \;
