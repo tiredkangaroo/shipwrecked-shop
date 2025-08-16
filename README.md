@@ -1,5 +1,14 @@
 # reverse shipwrecked shop
 
+go to `Latest Build` if you want to download binaries. run the binaries in a terminal.
+you're going to have to bypass security warnings, especially on MacOS.
+
+you could also just go install with (avoids security warnings):
+
+```bash
+go install github.com/tiredkangaroo/reverse-swshop
+```
+
 ## things you might need
 
 ### find your user id
