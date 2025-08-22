@@ -81,7 +81,7 @@ function ensureNoStaleData() {
   const now = new Date();
   const nextHour = new Date(now);
   nextHour.setHours(now.getHours() + 1, 0, 0, 0);
-  const msUntilTurnOfHour = nextHour - now;
+  const msUntilTurnOfHour = nextHour.getTime() - now.getTime();
   setTimeout(() => {
     window.location.reload();
   }, msUntilTurnOfHour + 1000);
