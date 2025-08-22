@@ -66,7 +66,7 @@ function App() {
   }, [info]);
 
   return (
-    <div className="w-full h-full flex flex-col justify-center items-center">
+    <div className="w-full h-full">
       {info ? <BestTimeToBuyView info={info} /> : <GetInfo setInfo={setInfo} />}
     </div>
   );
@@ -126,24 +126,76 @@ async function getPrice(
 }
 
 function BestTimeToBuyView({ info }: { info: Info }) {
+  const [TopXTimes, setTopXTimes] = useState<number>(5);
+  console.log(info.Items);
   return (
-    <div>
-      <h2>Best Times to Buy</h2>
-      <ul>
-        {info.Items.map((item) => (
-          <li key={item.id}>
-            {item.name}:{" "}
-            {item.bestTimesToBuy.map((time) => (
-              <span key={time.time.getTime()}>
-                {time.time.toLocaleString()} ({time.discountPercent.toFixed(2)}
-                %)
-              </span>
-            ))}
+    <div className="w-full h-full flex flex-col">
+      <div className="w-32 ml-auto mr-5">
+        <input
+          type="number"
+          min="1"
+          max={endHour - getCurrentUnixHour()}
+          value={TopXTimes}
+          onChange={(e) => setTopXTimes(Number(e.target.value))}
+        />
+      </div>
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 p-4">
+        {info.Items.slice(0, TopXTimes).map((item) => (
+          <InfoCard key={item.id} item={item} top_x_times={TopXTimes} />
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function InfoCard({ item, top_x_times }: { item: Item; top_x_times: number }) {
+  return (
+    <div className="bg-white shadow-md rounded-lg p-4 border-1">
+      <div className="w-full h-48 rounded-t-lg">
+        <img
+          src={item.image}
+          alt={item.name}
+          className="w-full h-full object-contain"
+        />
+      </div>
+      <h2 className="text-xl font-bold mt-2">{item.name}</h2>
+      <p className="text-gray-700 mt-1">{item.description}</p>
+      <p className="text-lg font-semibold mt-2">
+        Current Price: {item.price} shells
+      </p>
+      <h3 className="text-lg font-semibold mt-4">Best Times to Buy:</h3>
+      <ul className="list-disc pl-5">
+        {item.bestTimesToBuy.slice(0, top_x_times).map((time) => (
+          <li key={time.time}>
+            {formatUTCDateToLocalString(time.time)} -{" "}
+            {Math.abs(time.discountPercent).toFixed(2)}%{" "}
+            <span
+              className={
+                time.discountPercent > 0 ? "text-green-500" : "text-red-500"
+              }
+            >
+              {time.discountPercent > 0 ? "off" : "hike"}
+            </span>
           </li>
         ))}
       </ul>
     </div>
   );
+}
+
+function formatUTCDateToLocalString(utcDateStr: Date) {
+  const date = new Date(utcDateStr); // UTC input -> Local date
+
+  const options: Intl.DateTimeFormatOptions = {
+    year: "numeric",
+    month: "short",
+    day: "numeric",
+    hour: "numeric",
+    minute: "2-digit",
+    hour12: true,
+  };
+
+  return date.toLocaleString("en-US", options) + " (Local)";
 }
 
 async function getBestTimesToBuy(
