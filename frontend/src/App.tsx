@@ -22,6 +22,7 @@ interface Item {
   image: string;
   price: number;
   bestTimesToBuy: TimeToBuy[];
+  basePrice: number;
 }
 
 const API_ME = "https://shipwrecked.hackclub.com/api/users/me";
@@ -65,11 +66,25 @@ function App() {
     }
   }, [info]);
 
+  if (info) {
+    ensureNoStaleData();
+  }
+
   return (
     <div className="w-full h-full">
       {info ? <BestTimeToBuyView info={info} /> : <GetInfo setInfo={setInfo} />}
     </div>
   );
+}
+
+function ensureNoStaleData() {
+  const now = new Date();
+  const nextHour = new Date(now);
+  nextHour.setHours(now.getHours() + 1, 0, 0, 0);
+  const msUntilTurnOfHour = nextHour - now;
+  setTimeout(() => {
+    window.location.reload();
+  }, msUntilTurnOfHour + 1000);
 }
 
 async function getPrice(
@@ -125,22 +140,63 @@ async function getPrice(
   return finalPrice;
 }
 
+async function bruteForceBasePrice(
+  userId: string,
+  itemId: string,
+  currentPrice: number
+): Promise<number> {
+  // knowing that the items were created in the current unix hour
+  // it just brute forces the base price until it gets the one that creates the current price for the current hour
+  for (
+    let basePrice = Math.round(currentPrice * 0.7);
+    basePrice <= currentPrice * 1.3;
+    basePrice++
+  ) {
+    const price = await getPrice(
+      userId,
+      itemId,
+      basePrice,
+      getCurrentUnixHour()
+    );
+    if (price === currentPrice) {
+      console.log(`Found matching base price: ${basePrice}`);
+      return basePrice;
+    }
+  }
+  console.log(`No matching base price found for ${currentPrice}`);
+  return -1;
+}
+
 function BestTimeToBuyView({ info }: { info: Info }) {
   const [TopXTimes, setTopXTimes] = useState<number>(5);
   console.log(info.Items);
   return (
-    <div className="w-full h-full flex flex-col">
-      <div className="w-32 ml-auto mr-5">
-        <input
-          type="number"
-          min="1"
-          max={endHour - getCurrentUnixHour()}
-          value={TopXTimes}
-          onChange={(e) => setTopXTimes(Number(e.target.value))}
-        />
+    <div className="mt-2 w-full h-full flex flex-col">
+      <div className="flex flex-row items-center">
+        <div
+          className="ml-4 cursor-pointer border-red-600 text-red-600 border-1 flex flex-col items-center justify-center rounded-lg w-8 h-8"
+          onClick={() => {
+            localStorage.removeItem("info");
+            window.location.reload();
+          }}
+        >
+          X
+        </div>
+
+        <div className="w-fit ml-auto mr-5 flex flex-row items-center gap-6">
+          <input
+            type="number"
+            min="1"
+            max={endHour - getCurrentUnixHour()}
+            value={TopXTimes}
+            onChange={(e) => setTopXTimes(Number(e.target.value))}
+            className="w-32 border border-gray-300 rounded px-2 py-2 text-center"
+          />
+        </div>
       </div>
+
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 p-4">
-        {info.Items.slice(0, TopXTimes).map((item) => (
+        {info.Items.map((item) => (
           <InfoCard key={item.id} item={item} top_x_times={TopXTimes} />
         ))}
       </div>
@@ -149,6 +205,8 @@ function BestTimeToBuyView({ info }: { info: Info }) {
 }
 
 function InfoCard({ item, top_x_times }: { item: Item; top_x_times: number }) {
+  const current_price_change =
+    ((item.price - item.basePrice) / item.basePrice) * 100;
   return (
     <div className="bg-white shadow-md rounded-lg p-4 border-1">
       <div className="w-full h-48 rounded-t-lg">
@@ -160,18 +218,33 @@ function InfoCard({ item, top_x_times }: { item: Item; top_x_times: number }) {
       </div>
       <h2 className="text-xl font-bold mt-2">{item.name}</h2>
       <p className="text-gray-700 mt-1">{item.description}</p>
-      <p className="text-lg font-semibold mt-2">
-        Current Price: {item.price} shells
-      </p>
+      <div className="flex flex-col text-lg mt-2">
+        <p>
+          <span className="font-semibold">Base Price</span>: {item.basePrice}{" "}
+          shells
+        </p>
+        <p>
+          <span className="font-semibold">Current Price</span>: {item.price}{" "}
+          shells{" "}
+          <span
+            className={
+              current_price_change < 0 ? "text-green-700" : "text-red-700"
+            }
+          >
+            ({current_price_change < 0 ? "" : "+"}
+            {current_price_change.toFixed(2)}%)
+          </span>
+        </p>
+      </div>
       <h3 className="text-lg font-semibold mt-4">Best Times to Buy:</h3>
       <ul className="list-disc pl-5">
         {item.bestTimesToBuy.slice(0, top_x_times).map((time) => (
-          <li key={time.time}>
+          <li key={new Date(time.time).getTime()} className="mt-1">
             {formatUTCDateToLocalString(time.time)} -{" "}
             {Math.abs(time.discountPercent).toFixed(2)}%{" "}
             <span
               className={
-                time.discountPercent > 0 ? "text-green-500" : "text-red-500"
+                time.discountPercent > 0 ? "text-green-700" : "text-red-700"
               }
             >
               {time.discountPercent > 0 ? "off" : "hike"}
@@ -254,8 +327,10 @@ function GetInfo({ setInfo }: { setInfo: (info: Info) => void }) {
         image: item.image,
         price: item.price,
         bestTimesToBuy: await getBestTimesToBuy(id, item.id),
+        basePrice: await bruteForceBasePrice(id, item.id, item.price),
       }))
     );
+    items.sort((a, b) => b.basePrice - a.basePrice);
     setInfo({
       UserID: id,
       Items: items,
@@ -264,36 +339,38 @@ function GetInfo({ setInfo }: { setInfo: (info: Info) => void }) {
   };
 
   return (
-    <div>
-      <b>
-        You're going to need information to use this app. Make sure you are
-        logged into <a href={BAY_URL}>the bay</a>.
-      </b>{" "}
-      <br />
-      <br />
-      Please go to{" "}
-      <a href={API_ME} target="_blank">
-        this link
-      </a>{" "}
-      and copy the value of the <code>id</code> field. Provide the value below.{" "}
-      <br />
-      <input ref={idInputRef} placeholder="Enter your ID" />
-      <br />
-      <br />
-      Please go to{" "}
-      <a href={API_ITEMS} target="_blank">
-        this link
-      </a>{" "}
-      and copy/paste the whole response. Make sure the response you paste is
-      JSON.
-      <br />
-      <textarea
-        ref={itemsResponseRef}
-        placeholder="Paste the response here"
-        rows={12}
-      />
-      <br />
-      <button onClick={handleSubmit}>Submit</button>
+    <div className="w-full h-full justify-center items-center flex flex-col p-4">
+      <div>
+        <b>
+          You're going to need information to use this app. Make sure you are
+          logged into <a href={BAY_URL}>the bay</a>.
+        </b>{" "}
+        <br />
+        <br />
+        Please go to{" "}
+        <a href={API_ME} target="_blank">
+          this link
+        </a>{" "}
+        and copy the value of the <code>id</code> field. Provide the value
+        below. <br />
+        <input ref={idInputRef} placeholder="Enter your ID" />
+        <br />
+        <br />
+        Please go to{" "}
+        <a href={API_ITEMS} target="_blank">
+          this link
+        </a>{" "}
+        and copy/paste the whole response. Make sure the response you paste is
+        JSON.
+        <br />
+        <textarea
+          ref={itemsResponseRef}
+          placeholder="Paste the response here"
+          rows={12}
+        />
+        <br />
+        <button onClick={handleSubmit}>Submit</button>
+      </div>
     </div>
   );
 }
