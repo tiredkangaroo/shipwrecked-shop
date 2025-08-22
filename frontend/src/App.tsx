@@ -125,36 +125,59 @@ async function getPrice(
   return finalPrice;
 }
 
-async function BestTimeToBuyView({ info }: { info: Info }) {
-  for (const item of info.Items) {
-    const nowHour = getCurrentUnixHour();
-    const bestTimes: TimeToBuy[] = [];
-    for (let hr = nowHour; hr <= endHour; hr++) {
-      const price = await getPrice(info.UserID, item.id, exampleBasePrice, hr);
-      const discountPercent =
-        ((price - exampleBasePrice) / exampleBasePrice) * 100;
+function BestTimeToBuyView({ info }: { info: Info }) {
+  return (
+    <div>
+      <h2>Best Times to Buy</h2>
+      <ul>
+        {info.Items.map((item) => (
+          <li key={item.id}>
+            {item.name}:{" "}
+            {item.bestTimesToBuy.map((time) => (
+              <span key={time.time.getTime()}>
+                {time.time.toLocaleString()} ({time.discountPercent.toFixed(2)}
+                %)
+              </span>
+            ))}
+          </li>
+        ))}
+      </ul>
+    </div>
+  );
+}
 
-      bestTimes.push({
-        time: new Date(hr * 3600 * 1000), // convert back to ms
-        discountPercent,
-      });
-    }
+async function getBestTimesToBuy(
+  userId: string,
+  itemId: string
+): Promise<TimeToBuy[]> {
+  const nowHour = getCurrentUnixHour();
+  const bestTimes: TimeToBuy[] = [];
+  for (let hr = nowHour; hr <= endHour; hr++) {
+    const price = await getPrice(userId, itemId, exampleBasePrice, hr);
+    const discountPercent =
+      ((price - exampleBasePrice) / exampleBasePrice) * 100;
 
-    // sort: best discount first, then closest time
-    bestTimes.sort((a, b) => {
-      if (b.discountPercent !== a.discountPercent) {
-        return b.discountPercent - a.discountPercent;
-      }
-      return a.time.getTime() - b.time.getTime();
+    bestTimes.push({
+      time: new Date(hr * 3600 * 1000), // convert back to ms
+      discountPercent,
     });
   }
+
+  // sort: best discount first, then closest time
+  bestTimes.sort((a, b) => {
+    if (b.discountPercent !== a.discountPercent) {
+      return b.discountPercent - a.discountPercent;
+    }
+    return a.time.getTime() - b.time.getTime();
+  });
+  return bestTimes;
 }
 
 function GetInfo({ setInfo }: { setInfo: (info: Info) => void }) {
   const idInputRef = useRef<HTMLInputElement>(null);
   const itemsResponseRef = useRef<HTMLTextAreaElement>(null);
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     const id = idInputRef.current!.value.trim();
     if (id.length === 0) {
       alert("Please enter a valid ID");
@@ -171,13 +194,16 @@ function GetInfo({ setInfo }: { setInfo: (info: Info) => void }) {
       alert("invalid response");
       return;
     }
-    const items: Item[] = irr.items.map((item: any) => ({
-      id: item.id,
-      name: item.name,
-      description: item.description,
-      image: item.image,
-      price: item.price,
-    }));
+    const items: Item[] = await Promise.all(
+      irr.items.map(async (item: any) => ({
+        id: item.id,
+        name: item.name,
+        description: item.description,
+        image: item.image,
+        price: item.price,
+        bestTimesToBuy: await getBestTimesToBuy(id, item.id),
+      }))
+    );
     setInfo({
       UserID: id,
       Items: items,
@@ -209,7 +235,11 @@ function GetInfo({ setInfo }: { setInfo: (info: Info) => void }) {
       and copy/paste the whole response. Make sure the response you paste is
       JSON.
       <br />
-      <textarea ref={itemsResponseRef} placeholder="Paste the response here" />
+      <textarea
+        ref={itemsResponseRef}
+        placeholder="Paste the response here"
+        rows={12}
+      />
       <br />
       <button onClick={handleSubmit}>Submit</button>
     </div>
