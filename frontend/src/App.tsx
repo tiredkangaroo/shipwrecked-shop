@@ -196,7 +196,12 @@ function BestTimeToBuyView({ info }: { info: Info }) {
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 p-4">
-        {info.Items.map((item) => (
+        {info.Items.sort((a, b) => {
+          const discountA = (a.basePrice - a.price) / a.basePrice;
+          const discountB = (b.basePrice - b.price) / b.basePrice;
+          // NOTE: the above calculations are DISCOUNT, NOT PERCENT CHANGE!! that's why it looks weird.
+          return discountB - discountA;
+        }).map((item) => (
           <InfoCard key={item.id} item={item} top_x_times={TopXTimes} />
         ))}
       </div>
