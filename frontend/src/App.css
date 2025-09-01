@@ -1,0 +1,13 @@
+/* Styles for pin button */
+.pin-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 8px;
+}
+
+.pin-btn:hover {
+  transform: translateY(-1px);
+}

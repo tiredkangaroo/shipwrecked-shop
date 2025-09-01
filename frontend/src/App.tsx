@@ -170,6 +170,24 @@ async function bruteForceBasePrice(
 
 function BestTimeToBuyView({ info }: { info: Info }) {
   const [TopXTimes, setTopXTimes] = useState<number>(5);
+  const [pinnedIds, setPinnedIds] = useState<string[]>(() => {
+    try {
+      const raw = localStorage.getItem("pinnedIds");
+      return raw ? JSON.parse(raw) : [];
+    } catch {
+      return [];
+    }
+  });
+
+  useEffect(() => {
+    localStorage.setItem("pinnedIds", JSON.stringify(pinnedIds));
+  }, [pinnedIds]);
+
+  function togglePin(id: string) {
+    setPinnedIds((prev) =>
+      prev.includes(id) ? prev.filter((x) => x !== id) : [id, ...prev]
+    );
+  }
   console.log(info.Items);
   return (
     <div className="mt-2 w-full h-full flex flex-col">
@@ -196,26 +214,65 @@ function BestTimeToBuyView({ info }: { info: Info }) {
         </div>
       </div>
 
+      {/* No pinned bar - pinned items will be ordered first in the grid */}
+
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 p-4">
-        {info.Items.sort((a, b) => {
-          const discountA = (a.basePrice - a.price) / a.basePrice;
-          const discountB = (b.basePrice - b.price) / b.basePrice;
-          // NOTE: the above calculations are DISCOUNT, NOT PERCENT CHANGE!! that's why it looks weird.
-          return discountB - discountA;
-        }).map((item) => (
-          <InfoCard key={item.id} item={item} top_x_times={TopXTimes} />
-        ))}
+        {(() => {
+          const copy = [...info.Items];
+          copy.sort((a, b) => {
+            const ai = pinnedIds.indexOf(a.id);
+            const bi = pinnedIds.indexOf(b.id);
+            // If either is pinned, ensure pinned ones come first in the order of pinnedIds
+            if (ai !== -1 || bi !== -1) {
+              if (ai === -1) return 1;
+              if (bi === -1) return -1;
+              return ai - bi; // lower index in pinnedIds means earlier
+            }
+            const discountA = (a.basePrice - a.price) / a.basePrice;
+            const discountB = (b.basePrice - b.price) / b.basePrice;
+            // NOTE: the above calculations are DISCOUNT, NOT PERCENT CHANGE!! that's why it looks weird.
+            return discountB - discountA;
+          });
+          return copy.map((item) => (
+            <InfoCard
+              key={item.id}
+              item={item}
+              top_x_times={TopXTimes}
+              pinned={pinnedIds.includes(item.id)}
+              onTogglePin={togglePin}
+            />
+          ));
+        })()}
       </div>
     </div>
   );
 }
 
-function InfoCard({ item, top_x_times }: { item: Item; top_x_times: number }) {
+function InfoCard({
+  item,
+  top_x_times,
+  pinned,
+  onTogglePin,
+}: {
+  item: Item;
+  top_x_times: number;
+  pinned?: boolean;
+  onTogglePin?: (id: string) => void;
+}) {
   const current_price_change =
     ((item.price - item.basePrice) / item.basePrice) * 100;
   const [openChart, setOpenChart] = useState(false);
   return (
     <div className="bg-white shadow-md rounded-lg p-4 border-1">
+      <div className="flex justify-end">
+        <button
+          onClick={() => onTogglePin && onTogglePin(item.id)}
+          className={`pin-btn ${pinned ? "bg-yellow-100" : "border"}`}
+          title={pinned ? "Unpin" : "Pin to top"}
+        >
+          {pinned ? "📍" : "📌"}
+        </button>
+      </div>
       <div className="w-full h-48 rounded-t-lg">
         <img
           src={item.image}
