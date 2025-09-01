@@ -289,8 +289,9 @@ async function getBestTimesToBuy(
   const bestTimes: TimeToBuy[] = [];
   for (let hr = nowHour; hr <= endHour; hr++) {
     const price = await getPrice(userId, itemId, exampleBasePrice, hr);
+
     const discountPercent =
-      ((price - exampleBasePrice) / exampleBasePrice) * 100;
+      ((exampleBasePrice - price) / exampleBasePrice) * 100;
 
     bestTimes.push({
       time: new Date(hr * 3600 * 1000), // convert back to ms
