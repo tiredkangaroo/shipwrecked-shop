@@ -259,8 +259,11 @@ function InfoCard({
   pinned?: boolean;
   onTogglePin?: (id: string) => void;
 }) {
-  const current_price_change =
-    ((item.price - item.basePrice) / item.basePrice) * 100;
+  let current_price_change = NaN;
+  if (item.basePrice > 0) {
+    current_price_change =
+      ((item.price - item.basePrice) / item.basePrice) * 100;
+  }
   const [openChart, setOpenChart] = useState(false);
   return (
     <div className="bg-white shadow-md rounded-lg p-4 border-1">
@@ -268,6 +271,7 @@ function InfoCard({
         <button
           onClick={() => onTogglePin && onTogglePin(item.id)}
           className={`pin-btn ${pinned ? "bg-yellow-100" : "border"}`}
+          style={pinned ? { backgroundColor: "#fef9c2" } : {}}
           title={pinned ? "Unpin" : "Pin to top"}
         >
           {pinned ? "📍" : "📌"}
@@ -281,23 +285,25 @@ function InfoCard({
         />
       </div>
       <h2 className="text-xl font-bold mt-2">{item.name}</h2>
-      <p className="text-gray-700 mt-1">{item.description}</p>
+      <p className="text-gray-700 mt-1 truncate">{item.description}</p>
       <div className="flex flex-col text-lg mt-2">
         <p>
-          <span className="font-semibold">Base Price</span>: {item.basePrice}{" "}
-          shells
+          <span className="font-semibold">Base Price</span>:{" "}
+          {item.basePrice > 0 ? `${item.basePrice} shells` : "unknown"}
         </p>
         <p>
           <span className="font-semibold">Current Price</span>: {item.price}{" "}
           shells{" "}
-          <span
-            className={
-              current_price_change < 0 ? "text-green-700" : "text-red-700"
-            }
-          >
-            ({current_price_change < 0 ? "" : "+"}
-            {current_price_change.toFixed(2)}%)
-          </span>
+          {isNaN(current_price_change) ? null : (
+            <span
+              className={
+                current_price_change < 0 ? "text-green-700" : "text-red-700"
+              }
+            >
+              ({current_price_change < 0 ? "" : "+"}
+              {current_price_change.toFixed(2)}%)
+            </span>
+          )}
         </p>
       </div>
       <h3 className="text-lg font-semibold mt-4">Best Times to Buy:</h3>
@@ -327,7 +333,7 @@ function InfoCard({
 
       {openChart && (
         <DiscountChart
-          title={`${item.name} — Discount % over time (higher is cheaper)`}
+          title={`${item.name} — Discount % over time (higher on graph/more negative is cheaper)`}
           data={item.bestTimesToBuy}
           onClose={() => setOpenChart(false)}
         />

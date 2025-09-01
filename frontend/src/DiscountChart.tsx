@@ -51,7 +51,7 @@ export default function DiscountChart({
   }
 
   const points = data
-    .map((d) => ({ t: new Date(d.time).getTime(), v: d.discountPercent }))
+    .map((d) => ({ t: new Date(d.time).getTime(), v: -d.discountPercent }))
     .sort((a, b) => a.t - b.t);
 
   const times = points.map((p) => p.t);
@@ -82,7 +82,7 @@ export default function DiscountChart({
     // invert because SVG y increases downward
     if (maxV === minV) return height / 2;
     const normalized = (v - minV) / (maxV - minV);
-    return padding + (1 - normalized) * (height - padding * 2);
+    return padding + normalized * (height - padding * 2);
   };
 
   const pathD = points
@@ -334,7 +334,7 @@ export default function DiscountChart({
                 <span style={{ color: "#374151" }}>{tooltip.time}</span>
                 <span
                   style={{
-                    color: tooltip.percent > 0 ? "#059669" : "#dc2626",
+                    color: tooltip.percent > 0 ? "#dc2626" : "#059669",
                     fontWeight: 600,
                   }}
                 >
