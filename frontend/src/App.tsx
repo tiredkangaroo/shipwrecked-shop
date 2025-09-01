@@ -210,8 +210,11 @@ function BestTimeToBuyView({ info }: { info: Info }) {
 }
 
 function InfoCard({ item, top_x_times }: { item: Item; top_x_times: number }) {
-  const current_price_change =
-    ((item.price - item.basePrice) / item.basePrice) * 100;
+  let current_price_change = NaN;
+  if (item.basePrice !== -1) {
+    current_price_change =
+      ((item.price - item.basePrice) / item.basePrice) * 100;
+  }
   return (
     <div className="bg-white shadow-md rounded-lg p-4 border-1">
       <div className="w-full h-48 rounded-t-lg">
@@ -225,20 +228,22 @@ function InfoCard({ item, top_x_times }: { item: Item; top_x_times: number }) {
       <p className="text-gray-700 mt-1">{item.description}</p>
       <div className="flex flex-col text-lg mt-2">
         <p>
-          <span className="font-semibold">Base Price</span>: {item.basePrice}{" "}
-          shells
+          <span className="font-semibold">Base Price</span>:{" "}
+          {item.basePrice > 0 ? `${item.basePrice} shells` : "unknown"}
         </p>
         <p>
           <span className="font-semibold">Current Price</span>: {item.price}{" "}
           shells{" "}
-          <span
-            className={
-              current_price_change < 0 ? "text-green-700" : "text-red-700"
-            }
-          >
-            ({current_price_change < 0 ? "" : "+"}
-            {current_price_change.toFixed(2)}%)
-          </span>
+          {isNaN(current_price_change) ? null : (
+            <span
+              className={
+                current_price_change < 0 ? "text-green-700" : "text-red-700"
+              }
+            >
+              ({current_price_change < 0 ? "" : "+"}
+              {current_price_change.toFixed(2)}%)
+            </span>
+          )}
         </p>
       </div>
       <h3 className="text-lg font-semibold mt-4">Best Times to Buy:</h3>
