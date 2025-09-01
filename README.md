@@ -1,36 +1,12 @@
 # shipwrecked-shop
 
-## the website (recommended)
+tool for the shipwrecked shop 🗣️
 
-[the website](https://tiredkangaroo.github.io/shipwrecked-shop) is better and much easier to use.
+thank you [@tranquil](https://github.com/tranquil-tr0) for cooking upp! 🍳
 
-## using the terminal (if u dare)
+## the website
 
-go to `Latest Build` if you want to download binaries. run the binaries in a terminal.
-you're going to have to bypass security warnings, especially on MacOS.
-
-you could also just go install with (avoids security warnings):
-
-```bash
-go install github.com/tiredkangaroo/reverse-swshop
-```
-
-before you run, you're going to need to have an `items.json` in your folder. see below for how to get the data.
-
-### find your user id
-
-1. make sure you're signed into the [bay](https://shipwrecked.hackclub.com/bay)
-2. go to [this](https://shipwrecked.hackclub.com/api/users/me) api endpoint in your browser
-3. copy the `id` field under the `user` key from the json response
-
-there you go, you have your user id
-
-### find the items.json data
-
-1. make sure you're signed into the [bay](https://shipwrecked.hackclub.com/bay)
-2. go to [this](https://shipwrecked.hackclub.com/api/bay/shop/items) api endpoint in your browser
-3. copy the array of items from the json response (not the WHOLE thing)
-4. paste it in `items.json`
+[the website](https://tiredkangaroo.github.io/shipwrecked-shop) is cool. if you're cool, you use the website 🎉 if you're not cool, you are cool.
 
 ## questions
 
