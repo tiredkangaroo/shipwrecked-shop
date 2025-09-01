@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from "react";
+import DiscountChart from "./DiscountChart";
 import "./App.css";
 
 const endDate = new Date("2025-09-10T00:00:00Z");
@@ -212,6 +213,7 @@ function BestTimeToBuyView({ info }: { info: Info }) {
 function InfoCard({ item, top_x_times }: { item: Item; top_x_times: number }) {
   const current_price_change =
     ((item.price - item.basePrice) / item.basePrice) * 100;
+  const [openChart, setOpenChart] = useState(false);
   return (
     <div className="bg-white shadow-md rounded-lg p-4 border-1">
       <div className="w-full h-48 rounded-t-lg">
@@ -257,6 +259,22 @@ function InfoCard({ item, top_x_times }: { item: Item; top_x_times: number }) {
           </li>
         ))}
       </ul>
+      <div className="mt-4">
+        <button
+          onClick={() => setOpenChart(true)}
+          className="px-3 py-2 bg-blue-600 text-white rounded"
+        >
+          View discount graph
+        </button>
+      </div>
+
+      {openChart && (
+        <DiscountChart
+          title={`${item.name} — Discount % over time (higher is cheaper)`}
+          data={item.bestTimesToBuy}
+          onClose={() => setOpenChart(false)}
+        />
+      )}
     </div>
   );
 }
