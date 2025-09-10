@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import DiscountChart from "./DiscountChart";
 import "./App.css";
 
-const endDate = new Date("2025-09-10T00:00:00Z");
+const endDate = new Date("2025-09-17T00:00:00Z");
 const endHour = Math.floor(endDate.getTime() / 1000 / 3600);
 const exampleBasePrice = 250;
 interface Info {
