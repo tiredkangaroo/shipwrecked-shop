@@ -491,7 +491,7 @@ function GetInfo({ setInfo }: { setInfo: (info: Info) => void }) {
           rows={12}
         />
         <br />
-        Please select an end date/time for the analysis. The app will analyze
+        Please select a UTC end date/time for the analysis. The app will analyze
         prices from now until the selected date/time.
         <br />
         <input ref={endDateInputRef} type="datetime-local" />
