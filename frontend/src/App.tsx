@@ -2,8 +2,6 @@ import { useEffect, useRef, useState } from "react";
 import DiscountChart from "./DiscountChart";
 import "./App.css";
 
-const endDate = new Date("2025-09-17T00:00:00Z");
-const endHour = Math.floor(endDate.getTime() / 1000 / 3600);
 const exampleBasePrice = 250;
 interface Info {
   UserID: string;
@@ -191,22 +189,35 @@ function BestTimeToBuyView({ info }: { info: Info }) {
   console.log(info.Items);
   return (
     <div className="mt-2 w-full h-full flex flex-col">
-      <div className="flex flex-row items-center">
+      <div className="w-full grid grid-cols-3 gap-4 p-1 items-center">
         <div
-          className="ml-4 cursor-pointer border-red-600 text-red-600 border-1 flex flex-col items-center justify-center rounded-lg w-8 h-8"
+          className="justify-self-start ml-4 px-4 cursor-pointer border-red-400 text-red-400 border-1 flex flex-col items-center justify-center rounded-lg h-8 hover:border-red-600 hover:bg-red-600 hover:text-white duration-200 transition-colors hover:transition-colors"
           onClick={() => {
             localStorage.removeItem("info");
             window.location.reload();
           }}
         >
-          X
+          exit
         </div>
 
-        <div className="w-fit ml-auto mr-5 flex flex-row items-center gap-6">
+        <span className="self-center justify-self-center">
+          using shop end date as:{" "}
+          <b>
+            {new Date(
+              parseInt(localStorage.getItem("endHour")!) * 1000 * 3600
+            ).toLocaleString()}{" "}
+            (local)
+          </b>
+        </span>
+
+        <div className="justify-self-end w-fit mr-5 flex flex-row items-center gap-6">
+          <span># of best times to buy to show</span>
           <input
             type="number"
             min="1"
-            max={endHour - getCurrentUnixHour()}
+            max={
+              parseInt(localStorage.getItem("endHour")!) - getCurrentUnixHour()
+            }
             value={TopXTimes}
             onChange={(e) => setTopXTimes(Number(e.target.value))}
             className="w-32 border border-gray-300 rounded px-2 py-2 text-center"
@@ -259,6 +270,11 @@ function InfoCard({
   pinned?: boolean;
   onTogglePin?: (id: string) => void;
 }) {
+  switch (item.name) {
+    case "Island Progress":
+    case "Donate a shell to the void":
+      return <></>;
+  }
   let current_price_change = NaN;
   if (item.basePrice > 0) {
     current_price_change =
@@ -310,15 +326,28 @@ function InfoCard({
       <ul className="list-disc pl-5">
         {item.bestTimesToBuy.slice(0, top_x_times).map((time) => (
           <li key={new Date(time.time).getTime()} className="mt-1">
-            {formatUTCDateToLocalString(time.time)} -{" "}
-            {Math.abs(time.discountPercent).toFixed(2)}%{" "}
-            <span
-              className={
-                time.discountPercent > 0 ? "text-green-700" : "text-red-700"
-              }
-            >
-              {time.discountPercent > 0 ? "off" : "hike"}
-            </span>
+            {formatUTCDateToLocalString(time.time)}:{" "}
+            {item.basePrice != -1 ? (
+              <>
+                <span
+                  style={{ color: time.discountPercent > 0 ? "green" : "red" }}
+                >
+                  {Math.round(
+                    ((100 - time.discountPercent) / 100) * item.basePrice
+                  )}{" "}
+                  shells
+                </span>{" "}
+                ({Math.abs(time.discountPercent).toFixed(2)}%
+                <span> {time.discountPercent > 0 ? "off" : "hike"})</span>
+              </>
+            ) : (
+              <span
+                style={{ color: time.discountPercent > 0 ? "green" : "red" }}
+              >
+                {Math.abs(time.discountPercent).toFixed(2)}%
+                <span> {time.discountPercent > 0 ? "off" : "hike"}</span>
+              </span>
+            )}
           </li>
         ))}
       </ul>
@@ -359,7 +388,8 @@ function formatUTCDateToLocalString(utcDateStr: Date) {
 
 async function getBestTimesToBuy(
   userId: string,
-  itemId: string
+  itemId: string,
+  endHour: number
 ): Promise<TimeToBuy[]> {
   const nowHour = getCurrentUnixHour();
   const bestTimes: TimeToBuy[] = [];
@@ -387,6 +417,7 @@ async function getBestTimesToBuy(
 
 function GetInfo({ setInfo }: { setInfo: (info: Info) => void }) {
   const idInputRef = useRef<HTMLInputElement>(null);
+  const endDateInputRef = useRef<HTMLInputElement>(null);
   const itemsResponseRef = useRef<HTMLTextAreaElement>(null);
 
   const handleSubmit = async () => {
@@ -395,6 +426,9 @@ function GetInfo({ setInfo }: { setInfo: (info: Info) => void }) {
       alert("Please enter a valid ID");
       return;
     }
+    const endHour = Math.floor(
+      endDateInputRef.current!.valueAsNumber / 1000 / 3600
+    );
     let irr;
     try {
       irr = JSON.parse(itemsResponseRef.current!.value);
@@ -413,7 +447,7 @@ function GetInfo({ setInfo }: { setInfo: (info: Info) => void }) {
         description: item.description,
         image: item.image,
         price: item.price,
-        bestTimesToBuy: await getBestTimesToBuy(id, item.id),
+        bestTimesToBuy: await getBestTimesToBuy(id, item.id, endHour),
         basePrice: await bruteForceBasePrice(id, item.id, item.price),
       }))
     );
@@ -423,6 +457,7 @@ function GetInfo({ setInfo }: { setInfo: (info: Info) => void }) {
       Items: items,
       lastUpdatedUnixHour: getCurrentUnixHour(),
     });
+    localStorage.setItem("endHour", endHour.toString());
   };
 
   return (
@@ -455,6 +490,11 @@ function GetInfo({ setInfo }: { setInfo: (info: Info) => void }) {
           placeholder="Paste the response here"
           rows={12}
         />
+        <br />
+        Please select an end date/time for the analysis. The app will analyze
+        prices from now until the selected date/time.
+        <br />
+        <input ref={endDateInputRef} type="datetime-local" />
         <br />
         <button onClick={handleSubmit}>Submit</button>
       </div>
